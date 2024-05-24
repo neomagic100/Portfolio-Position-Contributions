@@ -45,6 +45,6 @@ if __name__ == "__main__":
     portfolio = getPortfolioFromFile(filename)
     contributionAmount = getContributionInput()
     
-    portfolio.calcDistribution(500)
+    portfolio.calcDistribution(contributionAmount)
     changes = portfolio.updatePortfolio()
     printOutput(portfolio, changes)
