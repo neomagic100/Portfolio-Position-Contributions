@@ -158,16 +158,29 @@ class Portfolio:
         diff = {}
         for symbol in self.desiredPercentages.keys():
             diff[symbol] = self.desiredPercentages[symbol] - self.percentageDistribution[symbol]
-        return diff         
+        return diff
+    
+    def printPositions(self):
+        """
+         @brief Print the positions to stdout in a human readable format ordered by percentage of portfolio
+        """
+        sortedPostitions = sorted(self.positions, reverse = True)
+        print(self._toString(sortedPostitions))
             
-    def _toString(self):
+    def _toString(self, orderedList = []):
         """
-         @brief Convert the positions to string. This is used for debugging and to show the positions in a human readable format.
-         @return A string representation of the positions in this position set.
+         @brief Returns a string representation of the positions. If orderedList is given the positions are ordered by 
+            percentage of Portfolio
+         @param orderedList a list of positions to order (default = [])
+         @return a string representation of the positions in the order of portfolio percentage
         """
+        positions = self.positions
+        # Set positions to the list of positions
+        if orderedList:
+            positions = orderedList
+            
         s = ""
-        # Returns a string representation of the positions of the current position.
-        for pos in self.positions:
+        for pos in positions:
             s += (str(pos) + "\n")
         return s
     

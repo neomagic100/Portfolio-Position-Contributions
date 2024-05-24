@@ -17,6 +17,13 @@ class Position:
         if len(row) > 3:
             if row[3].lower() == "t":
                 self.ignore = True
+                
+    def addValue(self, value):
+        """
+         @brief Adds a value to the current value.
+         @param value Value to add
+        """
+        self.currentValue += value
 
     def __str__(self):
         """
@@ -26,11 +33,12 @@ class Position:
             progress = Progress. __str__
         """
         return f"{self.symbol}, {self.percentWanted:.2f}, {self.currentValue:.2f}, {self.actualPercent:.2%}"
-
-    def addValue(self, value):
+    
+    def __lt__(self, other):
         """
-         @brief Adds a value to the current value.
-         @param value Value to add
+         @brief Compares this Position to another. This is used to determine if a Position is less than or equal to another.
+         @param other The other Position to compare to.
+         @return True if this Position is less than the other Position
         """
-        self.currentValue += value
+        return self.actualPercent < other.actualPercent
         

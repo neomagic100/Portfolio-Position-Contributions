@@ -27,8 +27,7 @@ def printOutput(portfolio, changes):
         print(f"{symbol}: ${amountToAdd:.2f}")
     print()    
     print("Portfolio:")
-    print(portfolio)
-
+    portfolio.printPositions()
 
 # This is the main function of the program. It takes a file path as an argument
 if __name__ == "__main__":
