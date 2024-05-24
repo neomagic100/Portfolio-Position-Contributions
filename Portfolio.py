@@ -165,7 +165,7 @@ class Portfolio:
     
     def printPositions(self):
         """
-         @brief Print the positions to stdout in a human readable format ordered by percentage of portfolio
+         @brief Print positions to standard output in tabular format.
         """
         sortedPostitions = sorted(self.positions, reverse = True)
         table = Portfolio.createOutputTable(sortedPostitions)
@@ -175,8 +175,14 @@ class Portfolio:
                        floatfmt = FLOAT_FORMAT))
         
     def createOutputTable(positions):
+        """
+         @brief Creates a table of positions. It is used to output the position data to the user
+         @param positions List of positions that need to be output
+         @return List of lists that represent the output table of the positions
+        """
         table = []
         table.append(TABLE_HEADERS)
+        # Generates a row of the positions in the table.
         for position in positions:
             row = []
             row.append(position.symbol)
