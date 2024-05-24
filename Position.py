@@ -32,7 +32,7 @@ class Position:
          @return A string representation of the progress. Example : " symbol percentWanted currentValue actualPercent " >>> 
             progress = Progress. __str__
         """
-        return f"{self.symbol}, {self.percentWanted:.2f}, {self.currentValue:.2f}, {self.actualPercent:.2%}"
+        return f"{self.symbol}: Weight {self.percentWanted:.2f}, Value {self.currentValue:.2f}, Percentage {self.actualPercent:.2%}"
     
     def __lt__(self, other):
         """
