@@ -1,5 +1,8 @@
 from copy import deepcopy
+from tabulate import tabulate
 
+TABLE_HEADERS = ["Symbol", "Desired Weight (%)", "Actual Weight (%)", "Current Value ($)"]
+FLOAT_FORMAT  = ["", ".2%", ".2%", ".2f"]
 class Portfolio:
     def __init__(self, positions):
         """
@@ -165,7 +168,24 @@ class Portfolio:
          @brief Print the positions to stdout in a human readable format ordered by percentage of portfolio
         """
         sortedPostitions = sorted(self.positions, reverse = True)
-        print(self._toString(sortedPostitions))
+        table = Portfolio.createOutputTable(sortedPostitions)
+        print(tabulate(table, 
+                       headers  = "firstrow", 
+                       tablefmt = "fancy_grid",
+                       floatfmt = FLOAT_FORMAT))
+        
+    def createOutputTable(positions):
+        table = []
+        table.append(TABLE_HEADERS)
+        for position in positions:
+            row = []
+            row.append(position.symbol)
+            row.append(position.percentWanted)
+            row.append(position.actualPercent)
+            row.append(position.currentValue)
+            table.append(row)
+            
+        return table
             
     def _toString(self, orderedList = []):
         """
