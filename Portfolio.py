@@ -86,6 +86,8 @@ class Portfolio:
         positionsUnderDesired = self._getPercentagesToChange()
         # Calculate the amount of remaining values for a given symbol.
         for symbol, percentToAdd in positionsUnderDesired.items():
+            if self.getPositionBySymbol(symbol).ignore:
+                continue
             tempVal = percentToAdd * remain
             currentPositionValue = self.getPositionBySymbol(symbol).currentValue
             updatedValue = tempVal + currentPositionValue
@@ -108,6 +110,8 @@ class Portfolio:
                 # Add symbol to amountsToAdd.
                 if symbol not in amountsToAdd.keys():
                     amountsToAdd[symbol] = 0
+                    if self.getPositionBySymbol(symbol).ignore:
+                        continue
                 amountsToAdd[symbol] += remain * percent
                 self.positionChanges[symbol] += amountsToAdd[symbol]
                 
