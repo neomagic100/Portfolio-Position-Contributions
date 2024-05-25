@@ -1,8 +1,6 @@
 from copy import deepcopy
-from tabulate import tabulate
+from Table import Table
 
-TABLE_HEADERS = ["Symbol", "Desired Weight (%)", "Actual Weight (%)", "Current Value ($)"]
-FLOAT_FORMAT  = ["", ".2%", ".2%", ".2f"]
 class Portfolio:
     def __init__(self, positions):
         """
@@ -167,35 +165,15 @@ class Portfolio:
             diff[symbol] = self.desiredPercentages[symbol] - self.percentageDistribution[symbol]
         return diff
     
-    def printPositions(self):
+    def printPositions(self, columns = None):
         """
-         @brief Print positions to standard output in tabular format.
+         @brief Print the positions of the postitions in a table.
+         @param columns List of columns to display. Default is all (default = None)
         """
         sortedPostitions = sorted(self.positions, reverse = True)
-        table = Portfolio.createOutputTable(sortedPostitions)
-        print(tabulate(table, 
-                       headers  = "firstrow", 
-                       tablefmt = "fancy_grid",
-                       floatfmt = FLOAT_FORMAT))
-        
-    def createOutputTable(positions):
-        """
-         @brief Creates a table of positions. It is used to output the position data to the user
-         @param positions List of positions that need to be output
-         @return List of lists that represent the output table of the positions
-        """
-        table = []
-        table.append(TABLE_HEADERS)
-        # Generates a row of the positions in the table.
-        for position in positions:
-            row = []
-            row.append(position.symbol)
-            row.append(position.percentWanted)
-            row.append(position.actualPercent)
-            row.append(position.currentValue)
-            table.append(row)
-            
-        return table
+        tableRows = Table.createOutputTable(sortedPostitions, columns)
+        table = Table.createTable(tableRows)
+        print(table)      
             
     def _toString(self, orderedList = []):
         """

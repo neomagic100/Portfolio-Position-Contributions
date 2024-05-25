@@ -1,3 +1,5 @@
+import traceback
+
 class Position:
     def __init__(self, row):
         """
@@ -5,18 +7,23 @@ class Position:
          @param row A list containing the symbol, percent wanted, current value in dollars, (and optionally, [T/t] to ignore the position
             in calculations)
         """
-        self.symbol = row[0]
-        self.percentWanted = float(row[1])
-        # Ensure percentages are in range [0, 1]
-        if self.percentWanted > 1:
-            self.percentWanted /= 100
-        self.currentValue = float(row[2])
-        self.actualPercent = 0
-        self.ignore = False
-        # If the optional ignore flag is present
-        if len(row) > 3:
-            if row[3].lower() == "t":
-                self.ignore = True
+        try:
+            self.symbol = row[0]
+            self.percentWanted = float(row[1])
+            # Ensure percentages are in range [0, 1]
+            if self.percentWanted > 1:
+                self.percentWanted /= 100
+            self.currentValue = float(row[2])
+            self.actualPercent = 0
+            self.ignore = False
+            # If the optional ignore flag is present
+            if len(row) > 3:
+                if row[3].lower() == "t":
+                    self.ignore = True
+        
+        except Exception:
+            print("An error occurred converting the raw data into Positions")
+            traceback.print_exc()
                 
     def addValue(self, value):
         """

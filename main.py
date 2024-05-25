@@ -1,6 +1,7 @@
 import sys
 import traceback
 from fetchData import getPortfolioFromFile
+from Table import Table, printPortfolioTable
 
 def getContributionInput():
     """
@@ -13,21 +14,18 @@ def getContributionInput():
         valueToAdd = input("Amount to add: $").strip() or 0
     valueToAdd = float(valueToAdd)
     return valueToAdd
-
-def printOutput(portfolio, changes):
+    
+def calculateChanges(portfolio):
     """
-     @brief Prints the output to the console. This is a helper function for test and logging purposes. 
-        It takes a portfolio and a list of changes to each position
-     @param portfolio The portfolio to be printed
-     @param changes A dictionary of position symbols and the amount to change for each
+     @brief Calculates the changes to the portfolio and updates the portfolio. This is a wrapper around L { getContributionInput } 
+        to calculate the contribution and then calls L { updatePortfolio }
+     @param portfolio The portfolio to calculate the changes for
+     @return A list of changes to each position
     """
-    print("Add amounts to each position:")
-    # Prints the changes to the console.
-    for symbol, amountToAdd in changes.items():
-        print(f"{symbol}: ${amountToAdd:.2f}")
-    print()    
-    print("Portfolio:")
-    portfolio.printPositions()
+    contributionAmount = getContributionInput()
+    portfolio.calcDistribution(contributionAmount)
+    changes = portfolio.updatePortfolio()
+    return changes
 
 # This is the main function of the program. It takes a file path as an argument
 if __name__ == "__main__":
@@ -42,9 +40,11 @@ if __name__ == "__main__":
         except Exception:
             traceback.print_exc()
     
+    # Get portfolio from file and create Portfolio Object. Print it to console.    
     portfolio = getPortfolioFromFile(filename)
-    contributionAmount = getContributionInput()
+    printPortfolioTable(portfolio, "Current Portfolio")
     
-    portfolio.calcDistribution(contributionAmount)
-    changes = portfolio.updatePortfolio()
-    printOutput(portfolio, changes)
+    # Calculate changes to and update Portfolio. Print both changes and updated Portfolio.
+    portfolioChanges = calculateChanges(portfolio)
+    Table.printOutput(portfolio, portfolioChanges)
+    printPortfolioTable(portfolio, "Updated Portfolio")
