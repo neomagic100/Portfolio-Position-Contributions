@@ -14,6 +14,7 @@ class Position:
             if self.percentWanted > 1:
                 self.percentWanted /= 100
             self.currentValue = float(row[2])
+            self.quantity = 0
             self.actualPercent = 0
             self.ignore = False
             # If the optional ignore flag is present
