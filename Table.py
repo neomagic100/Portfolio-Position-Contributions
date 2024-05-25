@@ -6,11 +6,14 @@ class Column(Enum):
     PERCENT_WANTED = 2
     PERCENT_ACTUAL = 3
     CURRENT_VALUE  = 4
+    CHANGE_VALUE   = 5
     
     TABLE_HEADERS = {SYMBOL         : "Symbol", 
                      PERCENT_WANTED : "Desired Weight (%)",
                      PERCENT_ACTUAL : "Actual Weight (%)", 
                      CURRENT_VALUE  : "Current Value ($)"}
+    
+    OTHER_HEADERS = {CHANGE_VALUE   : "Buy Amount ($)"}
     
     def getPositionRowData(columns, position, row):
         """
@@ -20,16 +23,16 @@ class Column(Enum):
          @param row List to be filled with data from position ( list )
         """
         # Add symbol to the row if it is a symbol column
-        if Column.SYMBOL in columns:
+        if Column.SYMBOL.value in columns:
             row.append(position.symbol)
         # Add percent wanted column to row
-        if Column.PERCENT_WANTED in columns:
+        if Column.PERCENT_WANTED.value in columns:
             row.append(position.percentWanted)
         # Add the actual percent to the row.
-        if Column.PERCENT_ACTUAL in columns:
+        if Column.PERCENT_ACTUAL.value in columns:
             row.append(position.actualPercent)
         # Append current value to row.
-        if Column.CURRENT_VALUE in columns:
+        if Column.CURRENT_VALUE.value in columns:
             row.append(position.currentValue)
             
     def getColumnHeaders(columns, row):
@@ -50,6 +53,8 @@ class Column(Enum):
         # Add the current value to the row.
         if Column.CURRENT_VALUE.value in columns:
             row.append(Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value])
+        if Column.CHANGE_VALUE.value in columns:
+            row.append(Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value])
 
 class Table:
     FLOAT_FORMAT  = ["", ".2%", ".2%", ".2f"]
@@ -63,6 +68,7 @@ class Table:
         """
         table   = []
         headers = []
+        
         # Get the headers for the columns.
         if not columns:
             headers = list(Column.TABLE_HEADERS.value.values())
@@ -116,7 +122,8 @@ class Table:
             elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_WANTED.value] or \
                  headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_ACTUAL.value]:
                 floatList.append(".2%")
-            elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value]:
+            elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value] or \
+                 headers[colIndex] == Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value]:
                 floatList.append(".2f")
             else:
                 raise Exception("Table value not identified for formatting")
@@ -130,10 +137,29 @@ class Table:
         @param portfolio The portfolio to be printed
         @param changes A dictionary of position symbols and the amount to change for each
         """
-        print("Add amounts to each position:")
+        tableRows = []
+        columns   = [Column.SYMBOL.value, Column.CHANGE_VALUE.value]
+        headers   = [Column.TABLE_HEADERS.value[columns[0]],
+                     Column.OTHER_HEADERS.value[columns[1]]]
+          
+        tableRows.append(headers)
         # Prints the changes to the console.
         for symbol, amountToAdd in changes.items():
-            print(f"{symbol}: ${amountToAdd:.2f}")
-        print()    
-        print("Portfolio:")
-        portfolio.printPositions()
+            row = [symbol, amountToAdd]
+            tableRows.append(row)
+        
+        print("\nBuy per Position:\n")
+        table = Table.createTable(tableRows)
+        print(table)
+         
+def printPortfolioTable(portfolio, title, columns = None):
+    """
+     @brief Prints a table of positions for a portfolio. This is a convenience function to print the positions of a Portfolio object to the console
+     @param portfolio The portfolio to print the positions for
+     @param title The title of the portfolio ( for example " Current Portfolio " )
+     @param columns A list of column names to print. MUST be Column Enums (default = None)
+    """
+    print(f"\n{title}:\n")
+    portfolio.printPositions(columns)
+    print()
+    

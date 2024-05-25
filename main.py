@@ -1,7 +1,7 @@
 import sys
 import traceback
 from fetchData import getPortfolioFromFile
-from Table import Table
+from Table import Table, printPortfolioTable
 
 def getContributionInput():
     """
@@ -14,6 +14,18 @@ def getContributionInput():
         valueToAdd = input("Amount to add: $").strip() or 0
     valueToAdd = float(valueToAdd)
     return valueToAdd
+    
+def calculateChanges(portfolio):
+    """
+     @brief Calculates the changes to the portfolio and updates the portfolio. This is a wrapper around L { getContributionInput } 
+        to calculate the contribution and then calls L { updatePortfolio }
+     @param portfolio The portfolio to calculate the changes for
+     @return A list of changes to each position
+    """
+    contributionAmount = getContributionInput()
+    portfolio.calcDistribution(contributionAmount)
+    changes = portfolio.updatePortfolio()
+    return changes
 
 # This is the main function of the program. It takes a file path as an argument
 if __name__ == "__main__":
@@ -28,9 +40,11 @@ if __name__ == "__main__":
         except Exception:
             traceback.print_exc()
     
+    # Get portfolio from file and create Portfolio Object. Print it to console.    
     portfolio = getPortfolioFromFile(filename)
-    contributionAmount = getContributionInput()
+    printPortfolioTable(portfolio, "Current Portfolio")
     
-    portfolio.calcDistribution(contributionAmount)
-    changes = portfolio.updatePortfolio()
-    Table.printOutput(portfolio, changes)
+    # Calculate changes to and update Portfolio. Print both changes and updated Portfolio.
+    portfolioChanges = calculateChanges(portfolio)
+    Table.printOutput(portfolio, portfolioChanges)
+    printPortfolioTable(portfolio, "Updated Portfolio")
