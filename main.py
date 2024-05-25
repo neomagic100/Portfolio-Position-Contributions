@@ -1,6 +1,7 @@
 import sys
 import traceback
 from fetchData import getPortfolioFromFile
+from Table import Table
 
 def getContributionInput():
     """
@@ -13,21 +14,6 @@ def getContributionInput():
         valueToAdd = input("Amount to add: $").strip() or 0
     valueToAdd = float(valueToAdd)
     return valueToAdd
-
-def printOutput(portfolio, changes):
-    """
-     @brief Prints the output to the console. This is a helper function for test and logging purposes. 
-        It takes a portfolio and a list of changes to each position
-     @param portfolio The portfolio to be printed
-     @param changes A dictionary of position symbols and the amount to change for each
-    """
-    print("Add amounts to each position:")
-    # Prints the changes to the console.
-    for symbol, amountToAdd in changes.items():
-        print(f"{symbol}: ${amountToAdd:.2f}")
-    print()    
-    print("Portfolio:")
-    portfolio.printPositions()
 
 # This is the main function of the program. It takes a file path as an argument
 if __name__ == "__main__":
@@ -47,4 +33,4 @@ if __name__ == "__main__":
     
     portfolio.calcDistribution(contributionAmount)
     changes = portfolio.updatePortfolio()
-    printOutput(portfolio, changes)
+    Table.printOutput(portfolio, changes)
