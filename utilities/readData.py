@@ -1,9 +1,7 @@
 import csv
 import traceback
-from Position import Position
-from Portfolio import Portfolio
-from random import random
-from fetchStock import fetchLatestPrices
+from portfolioComponents.Position import Position
+from portfolioComponents.Portfolio import Portfolio
 
 def _readCSVFile(filename):
     """
@@ -45,7 +43,6 @@ def getPortfolioFromFile(filename):
     # Add a position to the positions list
     for row in rawText:
         tempPosition = Position(row)
-        #TODO debug, change price to quantity of stocks
         positions.append(tempPosition)
         
     portfolio = Portfolio(positions)

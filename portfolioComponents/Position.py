@@ -4,19 +4,19 @@ class Position:
     def __init__(self, row):
         """
          @brief Initializes the object with data from the CSV file. This is called by __init__ and should not be called directly
-         @param row A list containing the symbol, percent wanted, current value in dollars, (and optionally, [T/t] to ignore the position
+         @param row A list containing the symbol, percent wanted, current number of shares, (and optionally, [T/t] to ignore the position
             in calculations)
         """
         try:
             self.symbol = row[0]
-            self.percentWanted = float(row[1])
+            self.percentWanted  = float(row[1])
             # Ensure percentages are in range [0, 1]
             if self.percentWanted > 1:
                 self.percentWanted /= 100
-            self.currentValue = float(row[2])
-            self.quantity = 0
-            self.actualPercent = 0
-            self.ignore = False
+            self.currentValue   = 0
+            self.quantityShares = float(row[2])
+            self.actualPercent  = 0
+            self.ignore         = False
             # If the optional ignore flag is present
             if len(row) > 3:
                 if row[3].lower() == "t":
@@ -40,7 +40,7 @@ class Position:
          @return A string representation of the progress. Example : " symbol percentWanted currentValue actualPercent " >>> 
             progress = Progress. __str__
         """
-        return f"{self.symbol}: Weight {self.percentWanted:.2f}, Value {self.currentValue:.2f}, Percentage {self.actualPercent:.2%}"
+        return f"{self.symbol}: Weight {self.percentWanted:.2f}, Shares {self.quantityShares:.2f}, Value {self.currentValue:.2f}, Percentage {self.actualPercent:.2%}"
     
     def __lt__(self, other):
         """

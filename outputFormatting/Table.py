@@ -1,20 +1,28 @@
 from enum import Enum
 from tabulate import tabulate
 
+FLOAT_2_PLACES   = ".2f"
+PERCENT_2_PLACES = ".2%"
+FLOAT_3_PLACES   = ".3f"
+PERCENT_3_PLACES = ".3%"
+STRING_FORMAT    = ""
+
 class Column(Enum):
     SYMBOL         = 1
     PERCENT_WANTED = 2
     PERCENT_ACTUAL = 3
-    CURRENT_VALUE  = 4
-    CHANGE_VALUE   = 5
+    QUANTITY       = 4
+    CURRENT_VALUE  = 5
+    CHANGE_VALUE   = 6
     
-    TABLE_HEADERS = {SYMBOL         : "Symbol", 
-                     PERCENT_WANTED : "Desired Weight (%)",
-                     PERCENT_ACTUAL : "Actual Weight (%)", 
-                     CURRENT_VALUE  : "Current Value ($)"}
+    TABLE_HEADERS  = {SYMBOL         : "Symbol", 
+                      PERCENT_WANTED : "Desired Weight (%)",
+                      PERCENT_ACTUAL : "Actual Weight (%)",
+                      QUANTITY       : "Quantity (Shares)", 
+                      CURRENT_VALUE  : "Current Value ($)"}
     
-    OTHER_HEADERS = {CHANGE_VALUE   : "Buy Amount ($)"}
-    
+    OTHER_HEADERS  = {CHANGE_VALUE   : "Buy Amount ($)"}
+        
     def getPositionRowData(columns, position, row):
         """
          @brief Adds data from position to row. This is used to fill the table data when inserting a row
@@ -31,6 +39,9 @@ class Column(Enum):
         # Add the actual percent to the row.
         if Column.PERCENT_ACTUAL.value in columns:
             row.append(position.actualPercent)
+        # Add the number of shares to the row.
+        if Column.QUANTITY.value in columns:
+            row.append(position.quantityShares)
         # Append current value to row.
         if Column.CURRENT_VALUE.value in columns:
             row.append(position.currentValue)
@@ -50,14 +61,18 @@ class Column(Enum):
         # Add column. PERCENT_ACTUAL column to row.
         if Column.PERCENT_ACTUAL.value in columns:
             row.append(Column.TABLE_HEADERS.value[Column.PERCENT_ACTUAL.value])
+        # Add the number of shares to the row.
+        if Column.QUANTITY.value in columns:
+            row.append(Column.QUANTITY.value[Column.QUANTITY.value])
         # Add the current value to the row.
         if Column.CURRENT_VALUE.value in columns:
             row.append(Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value])
+        # Add the value to buy to the row
         if Column.CHANGE_VALUE.value in columns:
             row.append(Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value])
 
 class Table:
-    FLOAT_FORMAT  = ["", ".2%", ".2%", ".2f"]
+    DEFAULT_FLOAT_FORMAT  = [STRING_FORMAT, PERCENT_2_PLACES, PERCENT_2_PLACES, FLOAT_2_PLACES]
                
     def createOutputTable(positions, columns = None):
         """
@@ -86,6 +101,7 @@ class Table:
                 row.append(position.symbol)
                 row.append(position.percentWanted)
                 row.append(position.actualPercent)
+                row.append(position.quantityShares)
                 row.append(position.currentValue)
             else:
                 Column.getPositionRowData(columns, position, row)
@@ -94,21 +110,23 @@ class Table:
             
         return table
     
-    def createTable(tableRows):
+    def createTable(tableRows, use3Places = False):
         """
          @brief Create a table from a list of rows. This is a function to use with the output of createOutputTable.
          @param tableRows The rows of the table. Must be a list of lists
+         @param use3Places Boolean to display floating points to 3 decimal places if True (default = False)
          @return A table that can be printed
         """
         return tabulate(tableRows, 
                         headers  = "firstrow", 
                         tablefmt = "fancy_grid",
-                        floatfmt = Table.getFloatFormat(tableRows))
+                        floatfmt = Table.getFloatFormat(tableRows, use3Places))
         
-    def getFloatFormat(tableRows):
+    def getFloatFormat(tableRows, use3Places = False):
         """
          @brief Create a list of table rows to float format used by tabulate to display values in specific floating point format
          @param tableRows list of rows from table
+         @param use3Places Boolean to display floating points to 3 decimal places if True (default = False)
          @return list of floats formatted to display values in floating point format used by tabulate
         """
         floatList = []
@@ -118,13 +136,16 @@ class Table:
         for colIndex, col in enumerate(sampleRow):
             # Format the column as a float list.
             if isinstance(col, str):
-                floatList.append("")
+                floatList.append(STRING_FORMAT)
             elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_WANTED.value] or \
                  headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_ACTUAL.value]:
-                floatList.append(".2%")
+                decimalFormat = PERCENT_3_PLACES if use3Places else PERCENT_2_PLACES
+                floatList.append(decimalFormat)
             elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value] or \
-                 headers[colIndex] == Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value]:
-                floatList.append(".2f")
+                 headers[colIndex] == Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value]  or \
+                 headers[colIndex] == Column.TABLE_HEADERS.value[Column.QUANTITY.value]:
+                decimalFormat = FLOAT_3_PLACES if use3Places else FLOAT_2_PLACES
+                floatList.append(decimalFormat)
             else:
                 raise Exception("Table value not identified for formatting")
             
@@ -138,18 +159,20 @@ class Table:
         @param changes A dictionary of position symbols and the amount to change for each
         """
         tableRows = []
-        columns   = [Column.SYMBOL.value, Column.CHANGE_VALUE.value]
+        columns   = [Column.SYMBOL.value, Column.QUANTITY.value, Column.CHANGE_VALUE.value]
         headers   = [Column.TABLE_HEADERS.value[columns[0]],
-                     Column.OTHER_HEADERS.value[columns[1]]]
+                     Column.TABLE_HEADERS.value[columns[1]],
+                     Column.OTHER_HEADERS.value[columns[2]]]
           
         tableRows.append(headers)
         # Prints the changes to the console.
-        for symbol, amountToAdd in changes.items():
-            row = [symbol, amountToAdd]
+        for symbol, valueToAdd in changes.items():
+            quantityToAdd = valueToAdd / portfolio.latestPrices[symbol]
+            row = [symbol, quantityToAdd, valueToAdd]
             tableRows.append(row)
         
         print("\nBuy per Position:\n")
-        table = Table.createTable(tableRows)
+        table = Table.createTable(tableRows, use3Places = True)
         print(table)
          
 def printPortfolioTable(portfolio, title, columns = None):

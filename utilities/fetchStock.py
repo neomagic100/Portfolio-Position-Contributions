@@ -15,12 +15,51 @@ class Day(Enum):
     
 _NEW_YORK_TZ = pytz.timezone('America/New_York')
 
-stocks = ["TSLA", "MSFT"]
+class StockTickerData:
+    def __init__(self, tickerData = None):
+        """
+         @brief Initialize the object with an optional paramater of data.
+         @param tickerData A dictionary of ticker data. (default = None)
+        """
+        self.tickerData = {} if not tickerData else tickerData
+    
+    def addTickerData(self, symbol, data):
+        """
+         @brief Set the ticker data for a symbol.
+         @param symbol The stock symbol to use as a key
+         @param data The yfinance fastData to be saved
+        """
+        self.tickerData[symbol] = data
+    
+    def getTickerData(self):
+        """
+         @brief Returns the ticker data for all saved positions
+         @return A dictionary that maps symbol to the ticker data of that stock
+        """
+        return self.tickerData
+    
+    def getTickerDataForSymbol(self, symbol):
+        """
+         @brief Get the ticker data for only one position. 
+         @param symbol The symbol to look up.
+         @return The ticker data or None if not found.
+        """
+        # Returns the ticker data if any.
+        if not self.tickerData:
+            return None
+        
+        try:
+            data = self.tickerData[symbol]
+        except KeyError:
+            return None
+        
+        return data
 
-def _fetchTickers(stocks):
+def _fetchTickers(stocks, tickerData):
     """
      @brief Fetches information about the tickers. This is a wrapper for yf. Tickers which does not require a lot of API calls
      @param stocks List of stock symbols to fetch information for
+     @param tickerData A dictionary of symbols to yfinance Ticker Data. Can be an empty dictionary to populate.
      @return Dict with ticker : fastData for each ticker in stocks or {} if there is no ticker for any stocks
     """
     try:
@@ -29,12 +68,14 @@ def _fetchTickers(stocks):
         if len(stocks) == 1:
             ticker = yf.Ticker(stocks[0])
             fastData[ticker.ticker] = ticker.get_fast_info()
+            tickerData.addTickerData(ticker.ticker, ticker)
         else:
             tickerList = yf.Tickers(stocks)
             # Get fast data for each symbol in tickerList. tickers
             for symbol in tickerList.tickers:
                 ticker = tickerList.tickers[symbol]    
                 fastData[symbol] = ticker.get_fast_info()
+                tickerData.addTickerData(symbol, ticker)
             
         return fastData
 
@@ -96,12 +137,13 @@ def _isOpenTime(timeObj):
     closeTime = time(hour = 16, minute = 30, tzinfo = _NEW_YORK_TZ)
     return timeObj > openTime and timeObj < closeTime
 
-def fetchLatestPrices(stocks):
+def fetchLatestPrices(stocks, tickerData):
     """
      @brief Get the latest prices for a list of stocks. This is a wrapper around _fetchTickers to allow us to do this in one call
      @param stocks A list of stock symbols to query ( ['AAPL', 'MSFT'] )
+     @param tickerData A dictionary of symbols to yfinance Ticker Data. Can be an empty dictionary to populate.
      @return A dictionary of prices keyed by stock ( ex. {'AAPL': 1234.56, 'MSFT': 5678.90} )
     """
-    marketData = _fetchTickers(stocks)
+    marketData = _fetchTickers(stocks, tickerData)
     prices = _getPrices(marketData)
     return prices
