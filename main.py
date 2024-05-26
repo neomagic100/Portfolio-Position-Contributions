@@ -1,7 +1,7 @@
 import sys
 import traceback
-from fetchData import getPortfolioFromFile
-from Table import Table, printPortfolioTable
+from utilities.readData import getPortfolioFromFile
+from outputFormatting.Table import Table, printPortfolioTable
 
 def getContributionInput():
     """

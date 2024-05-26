@@ -1,7 +1,7 @@
 import csv
 import traceback
-from Position import Position
-from Portfolio import Portfolio
+from portfolioComponents.Position import Position
+from portfolioComponents.Portfolio import Portfolio
 
 def _readCSVFile(filename):
     """
@@ -42,11 +42,12 @@ def getPortfolioFromFile(filename):
     
     # Add a position to the positions list
     for row in rawText:
-        positions.append(Position(row))
-
+        tempPosition = Position(row)
+        positions.append(tempPosition)
+        
     portfolio = Portfolio(positions)
     return portfolio
-
+    
 def stripBlankRows(rawText):
     """
      @brief Removes blank rows from rawText.

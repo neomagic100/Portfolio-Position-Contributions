@@ -1,5 +1,8 @@
 from copy import deepcopy
-from Table import Table
+import traceback
+from outputFormatting.Table import Table
+from utilities.fetchStock import StockTickerData, fetchLatestPrices
+from utilities.saveData import printTableToFile
 
 class Portfolio:
     def __init__(self, positions):
@@ -10,10 +13,31 @@ class Portfolio:
         """
         self.positions = positions
         self.initDesiredPercentages()
+        self.tickerData = StockTickerData()
+        self.getCurrentPrices()
         self.balance = self.getPositionSum()
         self.initPositionChanges()
         self.percentageDistribution = {}
         self.calculatePercentages()
+        
+    def getCurrentPrices(self):
+        """
+         @brief Get the current prices for each position and store in the current value of each Position.
+        """
+        symbols = []
+        # Add symbols to the symbols list of positions
+        for position in self.positions:
+            symbols.append(position.symbol)
+        
+        try:
+            self.latestPrices = fetchLatestPrices([position.symbol for position in self.positions], self.tickerData)
+        except Exception:
+            print("Could not fetch market data.")
+            traceback.print_exc()
+        
+        # Set current value of the current price of all the positions
+        for position in self.positions:
+            position.currentValue = self.latestPrices[position.symbol] * position.quantityShares
     
     def updatePortfolio(self):
         """
@@ -173,8 +197,19 @@ class Portfolio:
         sortedPostitions = sorted(self.positions, reverse = True)
         tableRows = Table.createOutputTable(sortedPostitions, columns)
         table = Table.createTable(tableRows)
-        print(table)      
-            
+        print(table)
+    
+    def printPositionsToFile(self, tableName, columns = None):
+        """
+         @brief Print the positions of the postitions in a table to a file "filename"
+         @param filename Print data to file
+         @param columns List of columns to display. Default is all (default = None)
+        """
+        sortedPostitions = sorted(self.positions, reverse = True)
+        tableRows = Table.createOutputTable(sortedPostitions, columns)
+        table = Table.createTable(tableRows, useForFile = True)
+        printTableToFile(table, tableName)
+                
     def _toString(self, orderedList = []):
         """
          @brief Returns a string representation of the positions. If orderedList is given the positions are ordered by 
