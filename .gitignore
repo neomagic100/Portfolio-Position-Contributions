@@ -2,3 +2,5 @@ __pycache__/
 .vscode/
 artifacts/
 data.csv
+outputFiles/*.md
+outputFiles/*.bak*

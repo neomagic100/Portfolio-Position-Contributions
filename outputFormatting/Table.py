@@ -1,5 +1,6 @@
 from enum import Enum
 from tabulate import tabulate
+from utilities.saveData import printTableToFile
 
 FLOAT_2_PLACES   = ".2f"
 PERCENT_2_PLACES = ".2%"
@@ -110,16 +111,19 @@ class Table:
             
         return table
     
-    def createTable(tableRows, use3Places = False):
+    def createTable(tableRows, useForFile = False, use3Places = False):
         """
          @brief Create a table from a list of rows. This is a function to use with the output of createOutputTable.
          @param tableRows The rows of the table. Must be a list of lists
+         @param useForFile Boolean True if the table is to be printed to a file
          @param use3Places Boolean to display floating points to 3 decimal places if True (default = False)
          @return A table that can be printed
         """
+        tableFormat = "pipe" if useForFile else "fancy_grid"
+        
         return tabulate(tableRows, 
                         headers  = "firstrow", 
-                        tablefmt = "fancy_grid",
+                        tablefmt = tableFormat,
                         floatfmt = Table.getFloatFormat(tableRows, use3Places))
         
     def getFloatFormat(tableRows, use3Places = False):
@@ -170,10 +174,12 @@ class Table:
             quantityToAdd = valueToAdd / portfolio.latestPrices[symbol]
             row = [symbol, quantityToAdd, valueToAdd]
             tableRows.append(row)
-        
-        print("\nBuy per Position:\n")
+        tableName = "Buy per Position"
+        print(f"\n{tableName}:\n")
         table = Table.createTable(tableRows, use3Places = True)
+        tableToFile = Table.createTable(tableRows, useForFile = True, use3Places = True)
         print(table)
+        printTableToFile(tableToFile, tableName)
          
 def printPortfolioTable(portfolio, title, columns = None):
     """
@@ -184,5 +190,6 @@ def printPortfolioTable(portfolio, title, columns = None):
     """
     print(f"\n{title}:\n")
     portfolio.printPositions(columns)
+    portfolio.printPositionsToFile(title, columns)
     print()
     

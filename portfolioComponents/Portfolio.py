@@ -2,6 +2,7 @@ from copy import deepcopy
 import traceback
 from outputFormatting.Table import Table
 from utilities.fetchStock import StockTickerData, fetchLatestPrices
+from utilities.saveData import printTableToFile
 
 class Portfolio:
     def __init__(self, positions):
@@ -196,8 +197,19 @@ class Portfolio:
         sortedPostitions = sorted(self.positions, reverse = True)
         tableRows = Table.createOutputTable(sortedPostitions, columns)
         table = Table.createTable(tableRows)
-        print(table)      
-            
+        print(table)
+    
+    def printPositionsToFile(self, tableName, columns = None):
+        """
+         @brief Print the positions of the postitions in a table to a file "filename"
+         @param filename Print data to file
+         @param columns List of columns to display. Default is all (default = None)
+        """
+        sortedPostitions = sorted(self.positions, reverse = True)
+        tableRows = Table.createOutputTable(sortedPostitions, columns)
+        table = Table.createTable(tableRows, useForFile = True)
+        printTableToFile(table, tableName)
+                
     def _toString(self, orderedList = []):
         """
          @brief Returns a string representation of the positions. If orderedList is given the positions are ordered by 
