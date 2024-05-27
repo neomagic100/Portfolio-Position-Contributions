@@ -1,14 +1,9 @@
 import os
 import traceback
+from utilities.Constants import FileConstants
 
-OUTPUT_FILE_DIR  = "outputFiles"
-ARCHIVE_FILE_DIR = "archivedFiles"
-DIR_PATH         = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) # Get root project dir
-SAVE_PATH        = os.path.join(DIR_PATH, OUTPUT_FILE_DIR)
-ALT_SAVE_PATH    = os.path.join(SAVE_PATH, ARCHIVE_FILE_DIR)
-
-if not os.path.exists(SAVE_PATH):
-        os.makedirs(SAVE_PATH)
+if not os.path.exists(FileConstants.SAVE_PATH):
+    os.makedirs(FileConstants.SAVE_PATH)
 
 def checkForExistingFile(filename):
     """
@@ -17,14 +12,14 @@ def checkForExistingFile(filename):
      @return Filepath of the file to use.
     """
     appendCount = 1
-    pathname    = SAVE_PATH
+    pathname    = FileConstants.SAVE_PATH
     oldFilename = filename
-    oldFilePath = os.path.join(SAVE_PATH, oldFilename)
+    oldFilePath = os.path.join(FileConstants.SAVE_PATH, oldFilename)
     files       = os.listdir(pathname)
     
     # Append append count to the end of the file.
     if filename in files:
-        pathname = ALT_SAVE_PATH
+        pathname = FileConstants.ALT_SAVE_PATH
         filename += ".bak"
         if not os.path.exists(pathname):
             os.makedirs(pathname)
@@ -37,7 +32,7 @@ def checkForExistingFile(filename):
         filename = compFilename
         
         # Move old files into archive
-        if pathname != SAVE_PATH:
+        if pathname != FileConstants.SAVE_PATH:
             newFilePath = os.path.join(pathname, filename)
             os.rename(oldFilePath, newFilePath)    
             

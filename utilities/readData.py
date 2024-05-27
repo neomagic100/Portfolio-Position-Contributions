@@ -1,7 +1,28 @@
+import os
 import csv
 import traceback
 from portfolioComponents.Position import Position
 from portfolioComponents.Portfolio import Portfolio
+from utilities.Constants import FileConstants
+
+def getPortfolioFromFile(filename = None):
+    """
+     @brief Reads a portfolio from a file.
+     @param filename The name of the file to read. Must be a valid path
+     @return A Portfolio object with the positions initialized
+    """
+    positions = []
+    rawText = _readCSVFile(filename)
+    _stripBlankRows(rawText)   
+    _stripHeaderRow(rawText)    
+    
+    # Add a position to the positions list
+    for row in rawText:
+        tempPosition = Position(row)
+        positions.append(tempPosition)
+        
+    portfolio = Portfolio(positions)
+    return portfolio
 
 def _readCSVFile(filename):
     """
@@ -10,6 +31,8 @@ def _readCSVFile(filename):
      @return A list of lists of strings from the CSV file
     """
     rawText = []
+    if not filename:
+        filename = _searchForCSV()
     try:
         with open(filename) as f:
             csvReader = csv.reader(f, delimiter=',', quotechar='|')
@@ -29,26 +52,37 @@ def _readCSVFile(filename):
     
     return rawText
 
-def getPortfolioFromFile(filename):
+def _searchForCSV():
     """
-     @brief Reads a portfolio from a file.
-     @param filename The name of the file to read. Must be a valid path
-     @return A Portfolio object with the positions initialized
+     @brief Search for CSV file in local directory or path of CSV file.
+     @return filename of CSV file found.
     """
-    positions = []
-    rawText = _readCSVFile(filename)
-    stripBlankRows(rawText)   
-    stripHeaderRow(rawText)    
+    filesInDir = os.listdir(FileConstants.DIR_PATH)
+    for filename in filesInDir:
+        # Return the filename of the CSV file.
+        if ".csv" in filename:
+            if _getFilenameConfirmation(filename):
+                return filename
+            else:
+                continue
+    raise Exception("No input CSV file in local directory or path of CSV specified as parameter")
+
+def _getFilenameConfirmation(filename):
+    """
+     @brief Ask the user to confirm a filename.
+     @param filename The filename to ask the user for
+     @return True if the user confirms False if not
+    """
+    acceptConfirmation = ["y", "yes"]
+    print(f"Found file {filename} ({str(os.path.join(FileConstants.DIR_PATH, filename))})")
+    confirm = "Y"
+    confirm = input(f"Use {filename} as input data? (Y/n): ")
+    # Return true if the user is allowed to accept the confirmation.
+    if confirm.lower() in acceptConfirmation:
+        return True
+    return False
     
-    # Add a position to the positions list
-    for row in rawText:
-        tempPosition = Position(row)
-        positions.append(tempPosition)
-        
-    portfolio = Portfolio(positions)
-    return portfolio
-    
-def stripBlankRows(rawText):
+def _stripBlankRows(rawText):
     """
      @brief Removes blank rows from rawText.
      @param rawText A list of list of strings
@@ -82,7 +116,7 @@ def stripBlankRows(rawText):
     for blankIndex in blanks:
         del rawText[blankIndex]
 
-def stripHeaderRow(rawText):
+def _stripHeaderRow(rawText):
     """
      @brief Strip header row from rawText. This is used to ensure that the first row is a float and not a row of headers
      @param rawText text from which to strip the header row

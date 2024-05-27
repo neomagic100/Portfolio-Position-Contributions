@@ -1,6 +1,7 @@
 from enum import Enum
 from tabulate import tabulate
 from utilities.saveData import printTableToFile
+from utilities.Constants import TableNames
 
 FLOAT_2_PLACES   = ".2f"
 PERCENT_2_PLACES = ".2%"
@@ -174,7 +175,7 @@ class Table:
             quantityToAdd = valueToAdd / portfolio.latestPrices[symbol]
             row = [symbol, quantityToAdd, valueToAdd]
             tableRows.append(row)
-        tableName = "Buy per Position"
+        tableName = TableNames.BUY_AMOUNTS
         print(f"\n{tableName}:\n")
         table = Table.createTable(tableRows, use3Places = True)
         tableToFile = Table.createTable(tableRows, useForFile = True, use3Places = True)
