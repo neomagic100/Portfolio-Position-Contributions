@@ -11,3 +11,11 @@ class TableNames:
     CURRENT_PORTOLIO  = "Current Portfolio"
     UPDATED_PORTFOLIO = "Updated Portfolio"
     BUY_AMOUNTS       = "Buy per Position"
+    
+class FloatStringFormat:
+    FLOAT_2_PLACES   = ".2f"
+    PERCENT_2_PLACES = ".2%"
+    FLOAT_3_PLACES   = ".3f"
+    PERCENT_3_PLACES = ".3%"
+    STRING_FORMAT    = ""
+    DEFAULT_FLOAT_FORMAT  = [STRING_FORMAT, PERCENT_2_PLACES, PERCENT_2_PLACES, FLOAT_2_PLACES]
