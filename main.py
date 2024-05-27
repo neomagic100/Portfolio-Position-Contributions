@@ -2,6 +2,7 @@ import sys
 import traceback
 from utilities.readData import getPortfolioFromFile
 from outputFormatting.Table import Table, printPortfolioTable
+from utilities.Constants import TableNames
 
 def getContributionInput():
     """
@@ -30,8 +31,8 @@ def calculateChanges(portfolio):
 # This is the main function of the program. It takes a file path as an argument
 if __name__ == "__main__":
     if len(sys.argv) < 2:
-        filename = "data.csv" # Used for debugging purposes, Normal execution in 'else'
-    else:
+        filename = ""
+    elif len(sys.argv) == 2:
         try:
             filename = sys.argv[1]
         except IndexError:
@@ -39,12 +40,14 @@ if __name__ == "__main__":
             traceback.print_exc()
         except Exception:
             traceback.print_exc()
+    else:
+        raise Exception("Only a File Path is an acceptable parameter")
     
     # Get portfolio from file and create Portfolio Object. Print it to console.    
     portfolio = getPortfolioFromFile(filename)
-    printPortfolioTable(portfolio, "Current Portfolio")
+    printPortfolioTable(portfolio, TableNames.CURRENT_PORTOLIO)
     
     # Calculate changes to and update Portfolio. Print both changes and updated Portfolio.
     portfolioChanges = calculateChanges(portfolio)
     Table.printOutput(portfolio, portfolioChanges)
-    printPortfolioTable(portfolio, "Updated Portfolio")
+    printPortfolioTable(portfolio, TableNames.UPDATED_PORTFOLIO)

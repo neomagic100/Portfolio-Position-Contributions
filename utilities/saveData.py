@@ -1,25 +1,42 @@
 import os
 import traceback
+from utilities.Constants import FileConstants
 
-dir_path = os.path.dirname(os.path.dirname(os.path.realpath(__file__))) # Get root project dir
-save_path = os.path.join(dir_path, "outputFiles")
+if not os.path.exists(FileConstants.SAVE_PATH):
+    os.makedirs(FileConstants.SAVE_PATH)
 
 def checkForExistingFile(filename):
     """
      @brief Checks if a file exists in the save path. If it does it appends a number to the filename so that it doesn't conflict with an existing file
      @param filename Name of the file to check
-     @return Name of the file to use.
+     @return Filepath of the file to use.
     """
     appendCount = 1
+    pathname    = FileConstants.SAVE_PATH
+    oldFilename = filename
+    oldFilePath = os.path.join(FileConstants.SAVE_PATH, oldFilename)
+    files       = os.listdir(pathname)
     
-    # Append the append count of the append count to the save path.
-    for _, _, files in os.walk(save_path):
-        # Append append count to the end of the file.
-        while filename in files:
-            filename += f".bak.{appendCount}"
-            appendCount += 1
+    # Append append count to the end of the file.
+    if filename in files:
+        pathname = FileConstants.ALT_SAVE_PATH
+        filename += ".bak"
+        if not os.path.exists(pathname):
+            os.makedirs(pathname)
             
-    return filename
+        subfiles = os.listdir(pathname)
+        compFilename = filename
+        while compFilename in subfiles:
+            compFilename = f"{filename}{str(appendCount)}"
+            appendCount += 1
+        filename = compFilename
+        
+        # Move old files into archive
+        if pathname != FileConstants.SAVE_PATH:
+            newFilePath = os.path.join(pathname, filename)
+            os.rename(oldFilePath, newFilePath)    
+            
+    return oldFilePath
 
 def printTableToFile(table, tableName):
     """
@@ -27,9 +44,10 @@ def printTableToFile(table, tableName):
      @param table the table to be printed
      @param tableName the name of the table that will be printed
     """
-    filename = checkForExistingFile(createFilenameFromTablename(tableName))
+    
+    filePath = checkForExistingFile(createFilenameFromTablename(tableName))
     try:
-        with open(f"outputFiles/{filename}", "w") as f:
+        with open(filePath, "w") as f:
             f.writelines(table)
     except:
         traceback.print_exc()

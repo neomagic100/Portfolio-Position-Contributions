@@ -1,12 +1,7 @@
 from enum import Enum
 from tabulate import tabulate
 from utilities.saveData import printTableToFile
-
-FLOAT_2_PLACES   = ".2f"
-PERCENT_2_PLACES = ".2%"
-FLOAT_3_PLACES   = ".3f"
-PERCENT_3_PLACES = ".3%"
-STRING_FORMAT    = ""
+from utilities.Constants import TableNames, FloatStringFormat
 
 class Column(Enum):
     SYMBOL         = 1
@@ -72,9 +67,7 @@ class Column(Enum):
         if Column.CHANGE_VALUE.value in columns:
             row.append(Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value])
 
-class Table:
-    DEFAULT_FLOAT_FORMAT  = [STRING_FORMAT, PERCENT_2_PLACES, PERCENT_2_PLACES, FLOAT_2_PLACES]
-               
+class Table:               
     def createOutputTable(positions, columns = None):
         """
          @brief Creates a table of positions. It is used to generate the output the to the user
@@ -140,16 +133,17 @@ class Table:
         for colIndex, col in enumerate(sampleRow):
             # Format the column as a float list.
             if isinstance(col, str):
-                floatList.append(STRING_FORMAT)
+                floatList.append(FloatStringFormat.STRING_FORMAT)
             elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_WANTED.value] or \
                  headers[colIndex] == Column.TABLE_HEADERS.value[Column.PERCENT_ACTUAL.value]:
-                decimalFormat = PERCENT_3_PLACES if use3Places else PERCENT_2_PLACES
+                decimalFormat = FloatStringFormat.PERCENT_3_PLACES if use3Places else FloatStringFormat.PERCENT_2_PLACES
                 floatList.append(decimalFormat)
             elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.CURRENT_VALUE.value] or \
-                 headers[colIndex] == Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value]  or \
-                 headers[colIndex] == Column.TABLE_HEADERS.value[Column.QUANTITY.value]:
-                decimalFormat = FLOAT_3_PLACES if use3Places else FLOAT_2_PLACES
+                 headers[colIndex] == Column.OTHER_HEADERS.value[Column.CHANGE_VALUE.value]:
+                decimalFormat = FloatStringFormat.FLOAT_3_PLACES if use3Places else FloatStringFormat.FLOAT_2_PLACES
                 floatList.append(decimalFormat)
+            elif headers[colIndex] == Column.TABLE_HEADERS.value[Column.QUANTITY.value]:
+                floatList.append(FloatStringFormat.FLOAT_3_PLACES)
             else:
                 raise Exception("Table value not identified for formatting")
             
@@ -174,7 +168,7 @@ class Table:
             quantityToAdd = valueToAdd / portfolio.latestPrices[symbol]
             row = [symbol, quantityToAdd, valueToAdd]
             tableRows.append(row)
-        tableName = "Buy per Position"
+        tableName = TableNames.BUY_AMOUNTS
         print(f"\n{tableName}:\n")
         table = Table.createTable(tableRows, use3Places = True)
         tableToFile = Table.createTable(tableRows, useForFile = True, use3Places = True)
